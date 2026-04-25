@@ -5,20 +5,15 @@ RUN pip install virtualenv
 # Setting our virtual environment variable
 ENV VIRTUAL_ENV=/venv
 # Creating a virtual environment
-RUN virtualenv venv -p python3
+RUN virtualenv $VIRTUAL_ENV -p python3
 # Setting the path for our virtual environment
-ENV PATH="VIRTUAL_ENV/bin:$PATH"
-# Setting our working directory to .app
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+# Setting our working directory to /app
 WORKDIR /app
-ADD . /app
-# Installing our dependencies
-RUN pip install -r requirements.txt
 # Copying all files over
 COPY . /app
-# Expose port 
-ENV PORT 8501
-# cmd to launch app when container is run
-CMD streamlit run app.py
+# Installing our dependencies
+RUN pip install -r requirements.txt
 
 # streamlit-specific commands for config
 ENV LC_ALL=C.UTF-8
@@ -33,3 +28,8 @@ RUN bash -c 'echo -e "\
     [server]\n\
     enableCORS = false\n\
     " > /root/.streamlit/config.toml'
+
+# Expose port
+ENV PORT 8501
+# cmd to launch app when container is run
+CMD streamlit run app.py

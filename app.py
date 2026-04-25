@@ -1,12 +1,15 @@
 import streamlit as st
 import tensorflow.keras
-from PIL import Image, ImageOps
+from PIL import Image
 import numpy as np
 import warnings
 warnings.filterwarnings('ignore')
 
-# To make sure there are no file encoding warnings
-st.set_option('deprecation.showfileUploaderEncoding', False)
+
+@st.cache_resource
+def load_model():
+    return tensorflow.keras.models.load_model('model/EffNetB0_512_16.h5')
+
 
 def main():
     st.set_page_config(
@@ -33,7 +36,7 @@ def main():
                 st.write("")
                 st.write("Uploaded image")
 
-                st.image(image, use_column_width = True)
+                st.image(image, use_container_width = True)
                 st.write("")
 
                 try:
@@ -41,9 +44,10 @@ def main():
 
                         np.set_printoptions(suppress = True)
     
-                        model = tensorflow.keras.models.load_model('model/EffNetB0_512_16.h5')
+                        model = load_model()
 
                         image = image.resize((512, 512))
+                        image = np.array(image)
                         image = np.expand_dims(image, axis = 0)
 
                         labels = {0: "Cassava Bacterial Blight (CBB)", 1: "Cassava Brown Streak Disease (CBSD)", 2: "Cassava Green Mottle (CGM)", 3: "Cassava Mosaic Disease (CMD)", 4: "Healthy"}
@@ -74,7 +78,7 @@ def main():
                         elif(label == 'Cassava Mosaic Disease (CMD)'):
                             st.write("**Cassava Mosaic Disease (CMD)** is a viral disease caused by Cassava Mosaic Virus (CMV), a generic term for many virus species in the *Geminiviridae* family.")
 
-                except:
+                except Exception:
                     st.error("Apologies! Something went wrong! 🙇🏽‍♂️")
             else:
                 st.error("Could you please upload an image? 🙇🏽‍♂️")
@@ -84,7 +88,7 @@ def main():
         st.write("")
 
         cassava_with_leaves = Image.open("./assets/cassava_with_leaves.jpg")
-        st.image(cassava_with_leaves, use_column_width = True, caption = "Cassava roots with leaves.")
+        st.image(cassava_with_leaves, use_container_width = True, caption = "Cassava roots with leaves.")
 
         st.write("")
         st.write("As the second-largest provider of carbohydrates in Africa, **Cassava** (*Manihot esculenta*) is a key food security crop grown by smallholder farmers because it can withstand harsh conditions. \
@@ -105,7 +109,7 @@ def main():
 
         st.write("")
         efficientnetb0_architecture = Image.open("./assets/efficientnetb0-architecture.png")
-        st.image(efficientnetb0_architecture, use_column_width = True, caption = "EfficientNet-B0 baseline network")
+        st.image(efficientnetb0_architecture, use_container_width = True, caption = "EfficientNet-B0 baseline network")
 
         st.write("")
         st.write("The trained model was also made as a submission to [**Cassava Leaf Disease Classification**](https://www.kaggle.com/c/cassava-leaf-disease-classification/), the Kaggle Research Code Competition. \
